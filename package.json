@@ -1,0 +1,29 @@
+{
+  "name": "mongoose-payload-validator",
+  "version": "0.0.5",
+  "description": "Mongoose payload validator",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pushpendra2424/mongoose-payload-validator.git"
+  },
+  "keywords": [
+    "mongoose",
+    "schema-validation",
+    "express-middleware",
+    "payload-validator",
+    "mongoose-schema-validator"
+  ],
+  "author": "Pushpendra Kumar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pushpendra2424/mongoose-payload-validator/issues"
+  },
+  "homepage": "https://github.com/pushpendra2424/mongoose-payload-validator#readme",
+  "dependencies": {
+    "mongoose": "^8.7.0"
+  }
+}

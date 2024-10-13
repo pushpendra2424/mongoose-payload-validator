@@ -11,7 +11,7 @@ const { generateValidationError } = require("./error-messages");
 const validateType = (value, expectedType, path) => {
   const errors = [];
 
-  if (expectedType === mongoose.Schema.Types.ObjectId) {
+  if (expectedType?.schemaName === "ObjectId") {
     if (value && !mongoose.Types.ObjectId.isValid(value)) {
       errors.push(generateValidationError(path, "ObjectId", value));
     }
@@ -22,15 +22,12 @@ const validateType = (value, expectedType, path) => {
   } else if (expectedType === Boolean && typeof value !== "boolean") {
     errors.push(generateValidationError(path, "boolean", value));
   } else if (expectedType === Date) {
-    if (!(value instanceof Date) && isNaN(Date.parse(value))) {
-      errors.push(generateValidationError(path, "Date", value));
-    }
-  } else if (expectedType === Object && typeof value !== "object") {
-    errors.push(generateValidationError(path, "object", value));
-  } else if (expectedType === Array && !Array.isArray(value)) {
-    errors.push(generateValidationError(path, "array", value));
-  }
+    const parsedDate = new Date(value);
 
+    if (!(parsedDate instanceof Date) || isNaN(parsedDate.getTime())) {
+      errors.push(generateValidationError(path, "date", value));
+    }
+  }
   return errors;
 };
 
@@ -43,17 +40,20 @@ const validateType = (value, expectedType, path) => {
  */
 const validateArrayItems = (array, itemType, path) => {
   const errors = [];
-
+  if (!Array.isArray(array)) {
+    errors.push(generateValidationError(path, "array", array));
+    return errors;
+  }
   for (const item of array) {
-    if (
-      itemType === mongoose.Schema.Types.ObjectId &&
-      !mongoose.Types.ObjectId.isValid(item)
-    ) {
-      errors.push({
-        path,
-        message: `each item in '${path}' must be of type 'ObjectId', received '${typeof item}'`,
-      });
-    } else if (itemType === String && typeof item !== "string") {
+    if (itemType?.schemaName === "ObjectId") {
+      if (item && !mongoose.Types.ObjectId.isValid(item)) {
+        errors.push({
+          path,
+          message: `each item in '${path}' must be of type 'ObjectId', received '${typeof item}'`,
+        });
+      }
+    }
+    else if (itemType === String && typeof item !== "string") {
       errors.push({
         path,
         message: `each item in '${path}' must be of type 'string', received '${typeof item}'`,
@@ -68,7 +68,26 @@ const validateArrayItems = (array, itemType, path) => {
         path,
         message: `each item in '${path}' must be of type 'boolean', received '${typeof item}'`,
       });
+    } else if (itemType === Date) {
+      console.log('item: ', item);
+      if (typeof item === "number" || typeof item === "boolean") {
+        errors.push({
+          path,
+          message: `each item in '${path}' must be of type 'date', received '${typeof item}'`,
+        });
+      } else {
+        const parsedDate = new Date(item);
+        console.log('parsedDate: ', parsedDate);
+
+        if (!(parsedDate instanceof Date) || isNaN(parsedDate.getTime())) {
+          errors.push({
+            path,
+            message: `each item in '${path}' must be of type 'date', received '${typeof item}'`,
+          });
+        }
+      }
     }
+
     // Additional nested item validations can be added here
   }
 
